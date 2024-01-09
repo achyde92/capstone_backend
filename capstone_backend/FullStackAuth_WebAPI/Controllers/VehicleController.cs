@@ -19,6 +19,8 @@ namespace FullStackAuth_WebAPI.Controllers
             _context = context;
         }
 
+        // Get Wheelchair access (VehiclewithuserDTO)
+
         // POST api/vehicles
         [HttpPost, Authorize]
         public IActionResult Post([FromBody] Vehicle data)
