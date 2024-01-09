@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Security.Claims;
 using FullStackAuth_WebAPI.Data;
+using FullStackAuth_WebAPI.DataTransferObjects;
 using FullStackAuth_WebAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,34 @@ namespace FullStackAuth_WebAPI.Controllers
             _context = context;
         }
 
-        // Get Wheelchair access (VehiclewithuserDTO)
+        // GET api/vehicles/wheelchairaccessible
+        [HttpGet("wheelchairaccessible")]
+        public ActionResult<IEnumerable<VehicleWithUserDTO>> GetWheelchairAccessibleVehicles()
+        {
+            var vehiclesWithUsers = _context.Vehicles
+                .Include(v => v.Driver)
+                .Where(v => v.WheelchairAccess)
+                .Select(v => new VehicleWithUserDTO
+                {
+                    Id = v.Id,
+                    Make = v.Make,
+                    Model = v.Model,
+                    Year = v.Year,
+                    WheelchairAccess = v.WheelchairAccess,
+                    Driver = new UserForDisplayDto
+                    {
+                        Id = v.Driver.Id,
+                        FirstName = v.Driver.FirstName,
+                        LastName = v.Driver.LastName,
+                        UserName = v.Driver.UserName,
+                    }
+                })
+                .Where(v => v.WheelchairAccess)
+                .ToList();
+
+            return vehiclesWithUsers;
+        }
+
 
         // POST api/vehicles
         [HttpPost, Authorize]
