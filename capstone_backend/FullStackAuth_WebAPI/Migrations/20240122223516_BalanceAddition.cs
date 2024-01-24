@@ -9,7 +9,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace FullStackAuth_WebAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class BalanceAddition : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -39,6 +39,12 @@ namespace FullStackAuth_WebAPI.Migrations
                     Id = table.Column<string>(type: "varchar(255)", nullable: false),
                     FirstName = table.Column<string>(type: "longtext", nullable: true),
                     LastName = table.Column<string>(type: "longtext", nullable: true),
+                    Location = table.Column<string>(type: "longtext", nullable: true),
+                    IsEmployee = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    Longitude = table.Column<double>(type: "double", nullable: false),
+                    Latitude = table.Column<double>(type: "double", nullable: false),
+                    EmergencyContact = table.Column<string>(type: "longtext", nullable: true),
+                    Balance = table.Column<double>(type: "double", nullable: false),
                     UserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
@@ -57,6 +63,34 @@ namespace FullStackAuth_WebAPI.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Balances",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Balances", x => x.UserId);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Location",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    lat = table.Column<double>(type: "double", nullable: false),
+                    lng = table.Column<double>(type: "double", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Location", x => x.Id);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -193,13 +227,105 @@ namespace FullStackAuth_WebAPI.Migrations
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
+            migrationBuilder.CreateTable(
+                name: "RideReviews",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Rating = table.Column<double>(type: "double", nullable: false),
+                    Review = table.Column<string>(type: "longtext", nullable: true),
+                    DriverId = table.Column<string>(type: "varchar(255)", nullable: true),
+                    RiderId = table.Column<string>(type: "varchar(255)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RideReviews", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RideReviews_AspNetUsers_DriverId",
+                        column: x => x.DriverId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_RideReviews_AspNetUsers_RiderId",
+                        column: x => x.RiderId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Vehicles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Make = table.Column<string>(type: "longtext", nullable: false),
+                    Model = table.Column<string>(type: "longtext", nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
+                    WheelchairAccess = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    DriverId = table.Column<string>(type: "varchar(255)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Vehicles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Vehicles_AspNetUsers_DriverId",
+                        column: x => x.DriverId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Requests",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    UserMakingRequestId = table.Column<string>(type: "varchar(255)", nullable: true),
+                    UserAcceptingRequestId = table.Column<string>(type: "varchar(255)", nullable: true),
+                    StartLocationId = table.Column<int>(type: "int", nullable: true),
+                    EndLocationId = table.Column<int>(type: "int", nullable: true),
+                    Date = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Time = table.Column<TimeSpan>(type: "time(6)", nullable: false),
+                    WheelchairAccess = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsAccepted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    Status = table.Column<string>(type: "longtext", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Requests", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Requests_AspNetUsers_UserAcceptingRequestId",
+                        column: x => x.UserAcceptingRequestId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Requests_AspNetUsers_UserMakingRequestId",
+                        column: x => x.UserMakingRequestId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Requests_Location_EndLocationId",
+                        column: x => x.EndLocationId,
+                        principalTable: "Location",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Requests_Location_StartLocationId",
+                        column: x => x.StartLocationId,
+                        principalTable: "Location",
+                        principalColumn: "Id");
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "02826bcd-2b15-4c0a-8d85-281ade12b9b9", null, "Admin", "ADMIN" },
-                    { "59de2413-2986-49fa-a7ea-d2ee9bae8830", null, "User", "USER" }
+                    { "3091e744-7d38-46f0-ba57-661f72e06880", null, "Admin", "ADMIN" },
+                    { "bde49f7a-4efe-4827-ad56-fc4126a56aef", null, "User", "USER" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -243,6 +369,41 @@ namespace FullStackAuth_WebAPI.Migrations
                 name: "IX_Cars_OwnerId",
                 table: "Cars",
                 column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Requests_EndLocationId",
+                table: "Requests",
+                column: "EndLocationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Requests_StartLocationId",
+                table: "Requests",
+                column: "StartLocationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Requests_UserAcceptingRequestId",
+                table: "Requests",
+                column: "UserAcceptingRequestId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Requests_UserMakingRequestId",
+                table: "Requests",
+                column: "UserMakingRequestId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RideReviews_DriverId",
+                table: "RideReviews",
+                column: "DriverId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RideReviews_RiderId",
+                table: "RideReviews",
+                column: "RiderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Vehicles_DriverId",
+                table: "Vehicles",
+                column: "DriverId");
         }
 
         /// <inheritdoc />
@@ -264,10 +425,25 @@ namespace FullStackAuth_WebAPI.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Balances");
+
+            migrationBuilder.DropTable(
                 name: "Cars");
 
             migrationBuilder.DropTable(
+                name: "Requests");
+
+            migrationBuilder.DropTable(
+                name: "RideReviews");
+
+            migrationBuilder.DropTable(
+                name: "Vehicles");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Location");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

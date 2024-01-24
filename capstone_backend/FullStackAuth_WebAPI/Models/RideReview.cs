@@ -7,7 +7,7 @@ namespace FullStackAuth_WebAPI.Models
 	public class RideReview
 	{
         [Key]
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         public double Rating { get; set; }
 		public string Review { get; set; }

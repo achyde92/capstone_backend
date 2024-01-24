@@ -11,6 +11,7 @@ namespace FullStackAuth_WebAPI.Data
         public DbSet<RideReview> RideReviews { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<RideRequest> Requests { get; set; }
+        public DbSet<Balance> Balances { get; set; }
 
         public ApplicationDbContext(DbContextOptions options)
     : base(options)

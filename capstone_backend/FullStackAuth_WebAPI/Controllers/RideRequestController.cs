@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using FullStackAuth_WebAPI.Data;
 using FullStackAuth_WebAPI.Models;
+using FullStackAuth_WebAPI.DTOs;
 using System.Security.Claims;
+using static FullStackAuth_WebAPI.Models.RideRequest;
 
 namespace FullStackAuth_WebAPI.Controllers
 {
@@ -20,7 +22,7 @@ namespace FullStackAuth_WebAPI.Controllers
 
         // POST api/riderequests
         [HttpPost, Authorize]
-        public IActionResult Post([FromBody] RideRequest data)
+        public IActionResult Post([FromBody] RideRequestDTO rideRequestDTO)
         {
             try
             {
@@ -31,12 +33,29 @@ namespace FullStackAuth_WebAPI.Controllers
                     return Unauthorized();
                 }
 
-                data.UserMakingRequestId = userMakingRequestId;
+                var rideRequest = new RideRequest
+                {
+                    StartLocation = new Location
+                    {
+                        lat = rideRequestDTO.StartLocation.lat,
+                        lng = rideRequestDTO.StartLocation.lng
+                    },
+                    EndLocation = new Location
+                    {
+                        lat = rideRequestDTO.EndLocation.lat,
+                        lng = rideRequestDTO.EndLocation.lng
+                    },
+                    Date = rideRequestDTO.Date,
+                    Time = rideRequestDTO.Time,
+                    IsAccepted = false,
+                    Status = "Pending",
+                    UserMakingRequestId = userMakingRequestId
+                };
 
-                _context.Requests.Add(data);
+                _context.Requests.Add(rideRequest);
                 _context.SaveChanges();
 
-                return StatusCode(201, data);
+                return StatusCode(201, rideRequest);
             }
             catch (Exception ex)
             {
@@ -47,7 +66,7 @@ namespace FullStackAuth_WebAPI.Controllers
 
         // PUT api/riderequests/{id}/status
         [HttpPut("{id}/status"), Authorize]
-        public IActionResult UpdateRideRequestStatus(int id, [FromBody] RideRequest status)
+        public IActionResult UpdateRideRequestStatus(int id, [FromBody] RideRequestDTO updatedStatus)
         {
             try
             {
@@ -70,11 +89,37 @@ namespace FullStackAuth_WebAPI.Controllers
                     return Unauthorized();
                 }
 
-                rideRequest.Status = status;
+                rideRequest.Status = updatedStatus.Status;
 
                 _context.SaveChanges();
 
                 return Ok(rideRequest);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex}");
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
+        }
+
+        // POST /api/riderequests/accept/{id}
+        [HttpPost("accept/{id}"), Authorize]
+        public IActionResult AcceptRideRequest(int id)
+        {
+            try
+            {
+                var rideRequest = _context.Requests.Find(id);
+
+                if (rideRequest == null)
+                {
+                    return NotFound($"RideRequest with ID {id} not found.");
+                }
+
+                rideRequest.Status = "Accepted";
+
+                _context.SaveChanges();
+
+                return Ok($"RideRequest with ID {id} has been accepted.");
             }
             catch (Exception ex)
             {

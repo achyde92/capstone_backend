@@ -20,7 +20,7 @@ namespace FullStackAuth_WebAPI.Controllers
             _context = context;
         }
 
-        // GET api/vehicles/wheelchairaccessible
+        // GET api/vehicle
         [HttpGet("wheelchairaccessible")]
         public ActionResult<IEnumerable<VehicleWithUserDTO>> GetWheelchairAccessibleVehicles()
         {
@@ -49,7 +49,7 @@ namespace FullStackAuth_WebAPI.Controllers
         }
 
 
-        // POST api/vehicles
+        // POST api/registervehicle
         [HttpPost, Authorize]
         public IActionResult Post([FromBody] Vehicle data)
         {

@@ -11,16 +11,29 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FullStackAuth_WebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230621211652_init")]
-    partial class init
+    [Migration("20240122223516_BalanceAddition")]
+    partial class BalanceAddition
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.7")
+                .HasAnnotation("ProductVersion", "7.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
+
+            modelBuilder.Entity("FullStackAuth_WebAPI.Models.Balance", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("Balances");
+                });
 
             modelBuilder.Entity("FullStackAuth_WebAPI.Models.Car", b =>
                 {
@@ -49,6 +62,96 @@ namespace FullStackAuth_WebAPI.Migrations
                     b.ToTable("Cars");
                 });
 
+            modelBuilder.Entity("FullStackAuth_WebAPI.Models.RideRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("EndLocationId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsAccepted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int?>("StartLocationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("longtext");
+
+                    b.Property<TimeSpan>("Time")
+                        .HasColumnType("time(6)");
+
+                    b.Property<string>("UserAcceptingRequestId")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("UserMakingRequestId")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<bool>("WheelchairAccess")
+                        .HasColumnType("tinyint(1)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EndLocationId");
+
+                    b.HasIndex("StartLocationId");
+
+                    b.HasIndex("UserAcceptingRequestId");
+
+                    b.HasIndex("UserMakingRequestId");
+
+                    b.ToTable("Requests");
+                });
+
+            modelBuilder.Entity("FullStackAuth_WebAPI.Models.RideRequest+Location", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<double>("lat")
+                        .HasColumnType("double");
+
+                    b.Property<double>("lng")
+                        .HasColumnType("double");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Location");
+                });
+
+            modelBuilder.Entity("FullStackAuth_WebAPI.Models.RideReview", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("DriverId")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<double>("Rating")
+                        .HasColumnType("double");
+
+                    b.Property<string>("Review")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("RiderId")
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DriverId");
+
+                    b.HasIndex("RiderId");
+
+                    b.ToTable("RideReviews");
+                });
+
             modelBuilder.Entity("FullStackAuth_WebAPI.Models.User", b =>
                 {
                     b.Property<string>("Id")
@@ -56,6 +159,9 @@ namespace FullStackAuth_WebAPI.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
+
+                    b.Property<double>("Balance")
+                        .HasColumnType("double");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -68,10 +174,22 @@ namespace FullStackAuth_WebAPI.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<string>("EmergencyContact")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("FirstName")
                         .HasColumnType("longtext");
 
+                    b.Property<bool>("IsEmployee")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("LastName")
+                        .HasColumnType("longtext");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("double");
+
+                    b.Property<string>("Location")
                         .HasColumnType("longtext");
 
                     b.Property<bool>("LockoutEnabled")
@@ -79,6 +197,9 @@ namespace FullStackAuth_WebAPI.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("double");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -119,6 +240,36 @@ namespace FullStackAuth_WebAPI.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("FullStackAuth_WebAPI.Models.Vehicle", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("DriverId")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Make")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("WheelchairAccess")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DriverId");
+
+                    b.ToTable("Vehicles");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -147,13 +298,13 @@ namespace FullStackAuth_WebAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "59de2413-2986-49fa-a7ea-d2ee9bae8830",
+                            Id = "bde49f7a-4efe-4827-ad56-fc4126a56aef",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "02826bcd-2b15-4c0a-8d85-281ade12b9b9",
+                            Id = "3091e744-7d38-46f0-ba57-661f72e06880",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         });
@@ -268,6 +419,57 @@ namespace FullStackAuth_WebAPI.Migrations
                         .HasForeignKey("OwnerId");
 
                     b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("FullStackAuth_WebAPI.Models.RideRequest", b =>
+                {
+                    b.HasOne("FullStackAuth_WebAPI.Models.RideRequest+Location", "EndLocation")
+                        .WithMany()
+                        .HasForeignKey("EndLocationId");
+
+                    b.HasOne("FullStackAuth_WebAPI.Models.RideRequest+Location", "StartLocation")
+                        .WithMany()
+                        .HasForeignKey("StartLocationId");
+
+                    b.HasOne("FullStackAuth_WebAPI.Models.User", "UserAcceptingRequest")
+                        .WithMany()
+                        .HasForeignKey("UserAcceptingRequestId");
+
+                    b.HasOne("FullStackAuth_WebAPI.Models.User", "UserMakingRequest")
+                        .WithMany()
+                        .HasForeignKey("UserMakingRequestId");
+
+                    b.Navigation("EndLocation");
+
+                    b.Navigation("StartLocation");
+
+                    b.Navigation("UserAcceptingRequest");
+
+                    b.Navigation("UserMakingRequest");
+                });
+
+            modelBuilder.Entity("FullStackAuth_WebAPI.Models.RideReview", b =>
+                {
+                    b.HasOne("FullStackAuth_WebAPI.Models.User", "Driver")
+                        .WithMany()
+                        .HasForeignKey("DriverId");
+
+                    b.HasOne("FullStackAuth_WebAPI.Models.User", "Rider")
+                        .WithMany()
+                        .HasForeignKey("RiderId");
+
+                    b.Navigation("Driver");
+
+                    b.Navigation("Rider");
+                });
+
+            modelBuilder.Entity("FullStackAuth_WebAPI.Models.Vehicle", b =>
+                {
+                    b.HasOne("FullStackAuth_WebAPI.Models.User", "Driver")
+                        .WithMany()
+                        .HasForeignKey("DriverId");
+
+                    b.Navigation("Driver");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
